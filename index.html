@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ULockPrism-V1 — a modern browser game hub and web search portal.">
+  <title>ULockPrism-V1</title>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050608;
+      --bg-soft: #0a0c10;
+      --panel: #0e1116;
+      --panel-2: #141820;
+      --text: #f5f7fa;
+      --muted: #8b939e;
+      --line: rgba(255,255,255,.09);
+      --blue: #3b82f6;
+      --blue-light: #60a5fa;
+      --blue-dark: #1d4ed8;
+      --shadow: rgba(0,0,0,.45);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 5%, rgba(59,130,246,.10), transparent 28%),
+        radial-gradient(circle at 88% 25%, rgba(255,255,255,.035), transparent 25%),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: inherit; }
+    button, input { font: inherit; }
+
+    /* NAVIGATION */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      min-height: 72px;
+      padding: 0 6%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(5,6,8,.82);
+      backdrop-filter: blur(18px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      white-space: nowrap;
+      font-size: 19px;
+      font-weight: 850;
+      letter-spacing: -.5px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      color: #050608;
+      background: linear-gradient(135deg, #fff, #6b7280);
+      box-shadow: 0 0 25px rgba(255,255,255,.12);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      transition: .2s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active { color: #fff; }
+
+    .nav-search {
+      display: none;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--text);
+      background: var(--panel);
+      cursor: pointer;
+    }
+
+    /* HERO */
+    .hero {
+      width: 88%;
+      max-width: 1250px;
+      margin: 68px auto 48px;
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--blue-light);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 12px var(--blue);
+    }
+
+    .hero h1 {
+      max-width: 760px;
+      margin-top: 14px;
+      font-size: clamp(44px, 6vw, 78px);
+      line-height: .96;
+      letter-spacing: -4px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #fff 10%, #d5d9df 48%, var(--blue-light) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 650px;
+      margin: 24px 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 11px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 13px 19px;
+      border: 0;
+      border-radius: 11px;
+      color: #fff;
+      font-weight: 750;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      box-shadow: 0 9px 30px rgba(59,130,246,.22);
+    }
+
+    .btn-secondary {
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .hero-card {
+      position: relative;
+      min-height: 320px;
+      padding: 28px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 25px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.045), rgba(59,130,246,.035)),
+        var(--panel);
+      box-shadow: 0 30px 80px var(--shadow);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      width: 210px;
+      height: 210px;
+      right: -75px;
+      top: -75px;
+      border-radius: 50%;
+      background: rgba(59,130,246,.16);
+      filter: blur(40px);
+    }
+
+    .hero-card-label {
+      color: var(--blue-light);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .hero-card h2 {
+      position: relative;
+      margin-top: 17px;
+      font-size: 29px;
+    }
+
+    .hero-card p {
+      position: relative;
+      margin-top: 9px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .prism {
+      width: 112px;
+      height: 112px;
+      margin: 55px auto 0;
+      transform: rotate(45deg);
+      border-radius: 22px;
+      background: linear-gradient(135deg, #fff, #64748b 44%, var(--blue));
+      box-shadow:
+        0 0 35px rgba(255,255,255,.10),
+        0 0 75px rgba(59,130,246,.18);
+    }
+
+    /* MAIN */
+    main {
+      width: 88%;
+      max-width: 1250px;
+      margin: auto;
+    }
+
+    .section {
+      scroll-margin-top: 100px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin: 42px 0 18px;
+    }
+
+    .section-header h2 {
+      font-size: 25px;
+      letter-spacing: -.5px;
+    }
+
+    .game-search {
+      width: 270px;
+      padding: 11px 14px;
+      outline: 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: #fff;
+      background: var(--panel);
+    }
+
+    .game-search:focus {
+      border-color: rgba(59,130,246,.6);
+      box-shadow: 0 0 0 3px rgba(59,130,246,.08);
+    }
+
+    /* CATEGORIES */
+    .categories {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 9px;
+      scrollbar-width: thin;
+    }
+
+    .category {
+      flex-shrink: 0;
+      padding: 9px 15px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: var(--panel);
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .category:hover,
+    .category.active {
+      color: #fff;
+      border-color: rgba(59,130,246,.45);
+      background: rgba(59,130,246,.12);
+    }
+
+    /* GAMES */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .game-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--panel);
+      transition: .25s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(59,130,246,.38);
+      box-shadow: 0 18px 45px rgba(0,0,0,.4);
+    }
+
+    .game-image {
+      height: 155px;
+      display: grid;
+      place-items: center;
+      font-size: 42px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.045), rgba(59,130,246,.08)),
+        #101319;
+    }
+
+    .game-info { padding: 15px; }
+
+    .game-info h3 {
+      margin-bottom: 5px;
+      font-size: 16px;
+    }
+
+    .game-info span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .play-button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 9px;
+      border: 0;
+      border-radius: 9px;
+      color: #fff;
+      background: var(--panel-2);
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .play-button:hover { background: var(--blue); }
+
+    /* SEARCH ENGINE */
+    .search-engine {
+      scroll-margin-top: 100px;
+      max-width: 900px;
+      margin: 100px auto 20px;
+      padding: 55px 30px;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 25px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.035), rgba(59,130,246,.035)),
+        var(--panel);
+      box-shadow: 0 30px 80px var(--shadow);
+    }
+
+    .search-engine-header span {
+      color: var(--blue-light);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 3px;
+    }
+
+    .search-engine-header h2 {
+      margin-top: 12px;
+      font-size: 36px;
+    }
+
+    .search-engine-header p {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+
+    .duck-search {
+      display: flex;
+      align-items: center;
+      max-width: 700px;
+      margin: 30px auto 0;
+      padding: 6px;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      background: #080a0d;
+      transition: .2s;
+    }
+
+    .duck-search:focus-within {
+      border-color: rgba(59,130,246,.6);
+      box-shadow: 0 0 0 3px rgba(59,130,246,.08);
+    }
+
+    .search-icon {
+      padding-left: 13px;
+      color: #66707c;
+      font-size: 24px;
+    }
+
+    .duck-search input {
+      flex: 1;
+      min-width: 0;
+      padding: 13px;
+      border: 0;
+      outline: 0;
+      color: #fff;
+      background: transparent;
+      font-size: 15px;
+    }
+
+    .duck-search input::placeholder { color: #646b75; }
+
+    .duck-search button {
+      padding: 12px 20px;
+      border: 0;
+      border-radius: 9px;
+      color: #fff;
+      background: var(--blue);
+      font-weight: 750;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .duck-search button:hover { background: var(--blue-light); }
+
+    .search-note {
+      margin-top: 14px;
+      color: #68717d;
+      font-size: 12px;
+    }
+
+    /* FOOTER */
+    footer {
+      margin-top: 80px;
+      padding: 30px 6%;
+      text-align: center;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 25px;
+      z-index: 200;
+      transform: translate(-50%, 120px);
+      padding: 12px 17px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: #fff;
+      background: #11151b;
+      box-shadow: 0 15px 40px rgba(0,0,0,.4);
+      opacity: 0;
+      transition: .25s ease;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 950px) {
+      .hero { grid-template-columns: 1fr; }
+      .game-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      nav { padding: 0 5%; }
+      .nav-links { display: none; }
+      .nav-search { display: block; }
+      .hero { width: 90%; margin-top: 45px; }
+      .hero h1 { letter-spacing: -2px; }
+      main { width: 90%; }
+      .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .game-search { width: 100%; }
+      .game-grid { grid-template-columns: repeat(2, 1fr); }
+      .search-engine { margin-top: 75px; }
+    }
+
+    @media (max-width: 430px) {
+      .game-grid { grid-template-columns: 1fr; }
+      .game-image { height: 180px; }
+      .duck-search button { padding: 11px 14px; }
+      .search-engine { padding: 40px 18px; }
+      .search-engine-header h2 { font-size: 29px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <a class="logo" href="#home" style="text-decoration:none;">
+      <div class="logo-icon">◆</div>
+      ULockPrism-V1
+    </a>
+
+    <div class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#games">Games</a>
+      <a href="#categories">Categories</a>
+      <a href="#search-engine">Search Engine</a>
+    </div>
+
+    <button class="nav-search" onclick="goToSearch()" aria-label="Open search">
+      🔎
+    </button>
+  </nav>
+
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <div class="eyebrow">ULockPrism-V1</div>
+
+      <h1>
+        Your next
+        <span class="gradient-text">game.</span>
+      </h1>
+
+      <p>
+        A clean, fast browser-game hub with a monochrome interface,
+        subtle blue accents, and a built-in DuckDuckGo search portal.
+      </p>
+
+      <div class="hero-buttons">
+        <button class="btn btn-primary" onclick="scrollToGames()">
+          Browse Games
+        </button>
+
+        <button class="btn btn-secondary" onclick="goToSearch()">
+          Search the Web
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="hero-card-label">SYSTEM ONLINE</div>
+      <h2>Play. Discover. Repeat.</h2>
+      <p>
+        ULockPrism-V1 brings games and web search together
+        in one simple interface.
+      </p>
+      <div class="prism"></div>
+    </div>
+  </section>
+
+  <main>
+
+    <section class="section" id="games">
+      <div class="section-header">
+        <h2>Popular Games</h2>
+
+        <input
+          id="gameSearch"
+          class="game-search"
+          type="text"
+          placeholder="Search games..."
+          autocomplete="off"
+          oninput="applyFilters()"
+        >
+      </div>
+
+      <div class="categories" id="categories">
+        <button class="category active" onclick="filterGames('all', this)">All</button>
+        <button class="category" onclick="filterGames('arcade', this)">Arcade</button>
+        <button class="category" onclick="filterGames('action', this)">Action</button>
+        <button class="category" onclick="filterGames('puzzle', this)">Puzzle</button>
+        <button class="category" onclick="filterGames('racing', this)">Racing</button>
+        <button class="category" onclick="filterGames('strategy', this)">Strategy</button>
+      </div>
+
+      <div class="game-grid" id="gameGrid">
+
+        <article class="game-card" data-category="arcade" data-name="Prism Dash">
+          <div class="game-image">💎</div>
+          <div class="game-info">
+            <h3>Prism Dash</h3>
+            <span>Arcade • 5 min</span>
+            <button class="play-button" onclick="launchGame('Prism Dash')">Play</button>
+          </div>
+        </article>
+
+        <article class="game-card" data-category="action" data-name="Neon Strike">
+          <div class="game-image">⚡</div>
+          <div class="game-info">
+            <h3>Neon Strike</h3>
+            <span>Action • 10 min</span>
+            <button class="play-button" onclick="launchGame('Neon Strike')">Play</button>
+          </div>
+        </article>
+
+        <article class="game-card" data-category="puzzle" data-name="Block Shift">
+          <div class="game-image">🧩</div>
+          <div class="game-info">
+            <h3>Block Shift</h3>
+            <span>Puzzle • 8 min</span>
+            <button class="play-button" onclick="launchGame('Block Shift')">Play</button>
+          </div>
+        </article>
+
+        <article class="game-card" data-category="racing" data-name="Velocity X">
+          <div class="game-image">🏎️</div>
+          <div class="game-info">
+            <h3>Velocity X</h3>
+            <span>Racing • 12 min</span>
+            <button class="play-button" onclick="launchGame('Velocity X')">Play</button>
+          </div>
+        </article>
+
+        <article class="game-card" data-category="strategy" data-name="Grid Wars">
+          <div class="game-image">♟️</div>
+          <div class="game-info">
+            <h3>Grid Wars</h3>
+            <span>Strategy • 15 min</span>
+            <button class="play-button" onclick="launchGame('Grid Wars')">Play</button>
+          </div>
+        </article>
+
+        <article class="game-card" data-category="arcade" data-name="Pixel Jump">
+          <div class="game-image">🚀</div>
+          <div class="game-info">
+            <h3>Pixel Jump</h3>
+            <span>Arcade • 6 min</span>
+            <button class="play-button" onclick="launchGame('Pixel Jump')">Play</button>
+          </div>
+        </article>
+
+        <article class="game-card" data-category="puzzle" data-name="Color Matrix">
+          <div class="game-image">🔷</div>
+          <div class="game-info">
+            <h3>Color Matrix</h3>
+            <span>Puzzle • 7 min</span>
+            <button class="play-button" onclick="launchGame('Color Matrix')">Play</button>
+          </div>
+        </article>
+
+        <article class="game-card" data-category="action" data-name="Cyber Arena">
+          <div class="game-image">🤖</div>
+          <div class="game-info">
+            <h3>Cyber Arena</h3>
+            <span>Action • 14 min</span>
+            <button class="play-button" onclick="launchGame('Cyber Arena')">Play</button>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="search-engine" id="search-engine">
+      <div class="search-engine-header">
+        <span>SEARCH ENGINE</span>
+        <h2>DuckDuckGo</h2>
+        <p>Search the web from ULockPrism-V1.</p>
+      </div>
+
+      <form class="duck-search" onsubmit="searchDuckDuckGo(event)">
+        <div class="search-icon">⌕</div>
+
+        <input
+          id="duckQuery"
+          type="text"
+          placeholder="Search DuckDuckGo..."
+          autocomplete="off"
+          aria-label="DuckDuckGo search"
+        >
+
+        <button type="submit">Search</button>
+      </form>
+
+      <div class="search-note">
+        Searches open in a new tab on DuckDuckGo.
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    © 2026 ULockPrism-V1 • Built for the web
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let currentCategory = "all";
+
+    function scrollToGames() {
+      document.getElementById("games").scrollIntoView({
+        behavior: "smooth"
+      });
+    }
+
+    function goToSearch() {
+      document.getElementById("search-engine").scrollIntoView({
+        behavior: "smooth"
+      });
+
+      setTimeout(() => {
+        document.getElementById("duckQuery").focus();
+      }, 500);
+    }
+
+    function searchDuckDuckGo(event) {
+      event.preventDefault();
+
+      const query = document.getElementById("duckQuery").value.trim();
+
+      if (!query) {
+        showToast("Enter something to search.");
+        return;
+      }
+
+      const url =
+        "https://duckduckgo.com/?q=" +
+        encodeURIComponent(query);
+
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    function launchGame(gameName) {
+      /*
+        Replace this function with your actual game links.
+
+        Example:
+        window.location.href =
+          "games/prism-dash.html";
+
+        For now, this displays a message so the template
+        works immediately after uploading to GitHub.
+      */
+
+      showToast(gameName + " is ready for a game link.");
+    }
+
+    function filterGames(category, button) {
+      currentCategory = category;
+
+      document.querySelectorAll(".category").forEach(btn => {
+        btn.classList.remove("active");
+      });
+
+      button.classList.add("active");
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const search =
+        document.getElementById("gameSearch").value
+          .trim()
+          .toLowerCase();
+
+      const cards =
+        document.querySelectorAll(".game-card");
+
+      let visible = 0;
+
+      cards.forEach(card => {
+        const category = card.dataset.category;
+        const name = card.dataset.name.toLowerCase();
+
+        const categoryMatch =
+          currentCategory === "all" ||
+          category === currentCategory;
+
+        const searchMatch =
+          name.includes(search);
+
+        const shouldShow =
+          categoryMatch && searchMatch;
+
+        card.style.display =
+          shouldShow ? "" : "none";
+
+        if (shouldShow) visible++;
+      });
+
+      if (visible === 0) {
+        showToast("No games found.");
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      clearTimeout(window.toastTimer);
+
+      window.toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
+  </script>
+
+</body>
+</html>
